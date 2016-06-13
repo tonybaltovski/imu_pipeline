@@ -25,10 +25,12 @@ namespace imu_transformer
       if (source_frame_map_["local"].empty() || source_frame_map_["global"].empty())
       {
         NODELET_ERROR("Both a local and global frame must be specified");
+        ROS_ASSERT(!(source_frame_map_["local"].empty() || source_frame_map_["global"].empty()));
       }
       else
       {
         private_nh_.getParam("source_frame", source_frame_map_);
+
         NODELET_INFO("Global frame: %s", source_frame_map_["global"].c_str());
         NODELET_INFO("Local frame: %s", source_frame_map_["local"].c_str());
       }
@@ -37,17 +39,22 @@ namespace imu_transformer
     {
       source_frame_map_["local"] = "imu_link_ned_local";
       source_frame_map_["global"] = "imu_link_ned_global";
+
       NODELET_INFO("Global frame: %s", source_frame_map_["global"].c_str());
       NODELET_INFO("Local frame: %s", source_frame_map_["local"].c_str());
     }
     else if (private_nh_.getParam("source_frame", source_frame_map_["global"]))
     {
-      source_frame_map_["global"] = source_frame_map_["local"];
+      source_frame_map_["local"] = source_frame_map_["global"];
+
+      NODELET_INFO("Source frame: %s", source_frame_map_["global"].c_str());
     }
     else
     {
       source_frame_map_["local"] = "";
       source_frame_map_["global"] = "";
+
+      NODELET_INFO("Using source frame from incoming messages");
     }
 
     tf2_.reset(new tf2_ros::Buffer());
